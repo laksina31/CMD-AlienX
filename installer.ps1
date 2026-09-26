@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     ALIENX INSTALLER - animated console (text-based) installer UI.
 
@@ -55,15 +55,15 @@ $Config = @{
 
     # ANSI-shadow style block-letter banner spelling ALIENX
     BannerLines = @(
-        " ¦¦¦¦¦+  ¦¦+      ¦¦+ ¦¦¦¦¦¦¦+ ¦¦¦+   ¦¦+ ¦¦+  ¦¦+",
-        "¦¦+--¦¦+ ¦¦¦      ¦¦¦ ¦¦+----+ ¦¦¦¦+  ¦¦¦ +¦¦+¦¦++",
-        "¦¦¦¦¦¦¦¦ ¦¦¦      ¦¦¦ ¦¦¦¦¦+   ¦¦+¦¦+ ¦¦¦  +¦¦¦++ ",
-        "¦¦+--¦¦¦ ¦¦¦      ¦¦¦ ¦¦+--+   ¦¦¦+¦¦+¦¦¦  ¦¦+¦¦+ ",
-        "¦¦¦  ¦¦¦ ¦¦¦¦¦¦¦+ ¦¦¦ ¦¦¦¦¦¦¦+ ¦¦¦ +¦¦¦¦¦ ¦¦++ ¦¦+",
-        "+-+  +-+ +------+ +-+ +------+ +-+  +---+ +-+  +-+"
+        " █████╗  ██╗      ██╗ ███████╗ ███╗   ██╗ ██╗  ██╗",
+        "██╔══██╗ ██║      ██║ ██╔════╝ ████╗  ██║ ╚██╗██╔╝",
+        "███████║ ██║      ██║ █████╗   ██╔██╗ ██║  ╚███╔╝ ",
+        "██╔══██║ ██║      ██║ ██╔══╝   ██║╚██╗██║  ██╔██╗ ",
+        "██║  ██║ ███████╗ ██║ ███████╗ ██║ ╚████║ ██╔╝ ██╗",
+        "╚═╝  ╚═╝ ╚══════╝ ╚═╝ ╚══════╝ ╚═╝  ╚═══╝ ╚═╝  ╚═╝"
     )
 
-    Spinner = @('?', '?', '?', '?', '?', '?', '?', '?', '?', '?')
+    Spinner = @('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
 
     # Access gate - set AccessPassword to require a code before the menu is
     # shown at all. Leave it as an empty string ("") to disable the gate.
@@ -340,11 +340,11 @@ function Write-GradientLine([int]$x, [int]$y, [string]$text, [hashtable]$c1, [ha
 
 function Draw-Box([int]$x, [int]$y, [int]$width, [int]$height, [hashtable]$color) {
     $fg = Get-FG $color.R $color.G $color.B
-    Write-At $x $y ($fg + "?" + ("-" * ($width - 2)) + "?" + $Reset)
+    Write-At $x $y ($fg + "╭" + ("─" * ($width - 2)) + "╮" + $Reset)
     for ($i = 1; $i -lt ($height - 1); $i++) {
-        Write-At $x ($y + $i) ($fg + "¦" + (" " * ($width - 2)) + "¦" + $Reset)
+        Write-At $x ($y + $i) ($fg + "│" + (" " * ($width - 2)) + "│" + $Reset)
     }
-    Write-At $x ($y + $height - 1) ($fg + "?" + ("-" * ($width - 2)) + "?" + $Reset)
+    Write-At $x ($y + $height - 1) ($fg + "╰" + ("─" * ($width - 2)) + "╯" + $Reset)
 }
 
 function Draw-ProgressBar([int]$x, [int]$y, [int]$width, [double]$percent, [hashtable]$c1, [hashtable]$c2) {
@@ -357,7 +357,7 @@ function Draw-ProgressBar([int]$x, [int]$y, [int]$width, [double]$percent, [hash
         if ($width -gt 1) { $t = $i / [double]($width - 1) }
         $col = Get-GradientColor $c1 $c2 $t
         [void]$sb.Append((Get-FG $col.R $col.G $col.B))
-        if ($i -lt $filled) { [void]$sb.Append("¦") } else { [void]$sb.Append("¦") }
+        if ($i -lt $filled) { [void]$sb.Append("█") } else { [void]$sb.Append("░") }
     }
     [void]$sb.Append($Reset)
     [void]$sb.Append("] {0,3}%" -f [int]$percent)
@@ -383,7 +383,7 @@ function Show-BootSequence {
 }
 
 function Show-BannerReveal {
-    $glitchChars = @('¦', '¦', '¦')
+    $glitchChars = @('░', '▒', '▓')
     $maxLen = ($Config.BannerLines | Measure-Object -Property Length -Maximum).Maximum
     $Script:BannerX = [Math]::Max(0, [int](($Config.ConsoleWidth - $maxLen) / 2))
     $Script:BannerY = 2
@@ -412,9 +412,9 @@ function Flash-MenuItem([int]$index) {
     $label = $Config.MenuItems[$index]
     $y = $Script:MenuY + $index
     for ($f = 0; $f -lt 3; $f++) {
-        Write-At $Script:MenuX $y ((Get-BG 255 255 255) + (Get-FG 10 10 10) + "? " + $label.PadRight(12) + $Reset)
+        Write-At $Script:MenuX $y ((Get-BG 255 255 255) + (Get-FG 10 10 10) + "▶ " + $label.PadRight(12) + $Reset)
         Start-Sleep -Milliseconds 55
-        Write-At $Script:MenuX $y ((Get-BG $Config.ColorCyan.R $Config.ColorCyan.G $Config.ColorCyan.B) + (Get-FG 10 10 10) + "? " + $label.PadRight(12) + $Reset)
+        Write-At $Script:MenuX $y ((Get-BG $Config.ColorCyan.R $Config.ColorCyan.G $Config.ColorCyan.B) + (Get-FG 10 10 10) + "▶ " + $label.PadRight(12) + $Reset)
         Start-Sleep -Milliseconds 55
     }
 }
@@ -449,7 +449,7 @@ function Draw-MenuItems {
         $y = $Script:MenuY + $i
         if ($i -eq $Script:Selected) {
             $c = $Config.ColorCyan
-            Write-At $Script:MenuX $y ((Get-BG $c.R $c.G $c.B) + (Get-FG 10 10 10) + "? " + $label.PadRight(12) + $Reset)
+            Write-At $Script:MenuX $y ((Get-BG $c.R $c.G $c.B) + (Get-FG 10 10 10) + "▶ " + $label.PadRight(12) + $Reset)
         } else {
             Write-At $Script:MenuX $y ((Get-FG $Config.ColorDimGray.R $Config.ColorDimGray.G $Config.ColorDimGray.B) + "  " + $label.PadRight(12) + $Reset)
         }
@@ -472,7 +472,7 @@ function Draw-InfoLine {
 }
 
 function Draw-Footer {
-    $text = "?? navigate   ENTER select   ESC exit"
+    $text = "↑↓ navigate   ENTER select   ESC exit"
     $x = [Math]::Max(0, [int](($Config.ConsoleWidth - $text.Length) / 2))
     Write-At $x $Script:FooterY ((Get-FG $Config.ColorDarkGray.R $Config.ColorDarkGray.G $Config.ColorDarkGray.B) + $text + $Reset)
 }
@@ -577,7 +577,7 @@ function Show-AccessGate {
         Start-Sleep -Milliseconds 900
     }
 
-    Show-ResultScreen $false "Too many incorrect attempts." "? INSTALL COMPLETE" "? ACCESS DENIED"
+    Show-ResultScreen $false "Too many incorrect attempts." "✔ INSTALL COMPLETE" "✖ ACCESS DENIED"
     return $false
 }
 
@@ -1218,12 +1218,53 @@ function Update-Progress([string]$stepText, [double]$percent) {
 }
 
 function Add-LogLine([string]$text, [bool]$done) {
-    $mark = if ($done) { (Get-FG $Config.ColorGreen.R $Config.ColorGreen.G $Config.ColorGreen.B) + "?" } else { (Get-FG 150 150 150) + "…" }
-    Write-At 12 $Script:LogY ("  ? " + $text + " " + $mark + $Reset)
-    $Script:LogY++
+    # Center each tweak/status line and safely wrap long text so it never
+    # runs off the right edge of the console.
+    $markPlain = if ($done) { "✔" } else { "…" }
+    $prefixPlain = "→ "
+    $maxWidth = [Math]::Max(20, $Config.ConsoleWidth - 8)
+    $available = [Math]::Max(12, $maxWidth - $prefixPlain.Length - $markPlain.Length - 1)
+
+    $words = ([string]$text).Trim() -split '\s+'
+    $lines = New-Object System.Collections.Generic.List[string]
+    $current = ""
+    foreach ($word in $words) {
+        if (($current.Length + $word.Length + 1) -le $available) {
+            $current = if ($current) { "$current $word" } else { $word }
+        } else {
+            if ($current) { [void]$lines.Add($current) }
+            if ($word.Length -gt $available) {
+                for ($i = 0; $i -lt $word.Length; $i += $available) {
+                    $len = [Math]::Min($available, $word.Length - $i)
+                    [void]$lines.Add($word.Substring($i, $len))
+                }
+                $current = ""
+            } else {
+                $current = $word
+            }
+        }
+    }
+    if ($current) { [void]$lines.Add($current) }
+    if ($lines.Count -eq 0) { [void]$lines.Add("") }
+
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $tail = if ($i -eq ($lines.Count - 1)) { " $markPlain" } else { "" }
+        $plain = "$prefixPlain$($lines[$i])$tail"
+        $x = [Math]::Max(0, [int](($Config.ConsoleWidth - $plain.Length) / 2))
+
+        # Clear the full line first so wrapped/shorter text cannot leave stale pixels.
+        Write-At 0 $Script:LogY (" " * $Config.ConsoleWidth)
+        $prefix = (Get-FG 210 210 210) + $prefixPlain
+        $body   = (Get-FG 210 210 210) + $lines[$i]
+        $suffix = if ($tail) {
+            (if ($done) { Get-FG $Config.ColorGreen.R $Config.ColorGreen.G $Config.ColorGreen.B } else { Get-FG 150 150 150 }) + $tail
+        } else { "" }
+        Write-At $x $Script:LogY ($prefix + $body + $suffix + $Reset)
+        $Script:LogY++
+    }
 }
 
-function Show-ResultScreen([bool]$success, [string]$message, [string]$successLabel = "? INSTALL COMPLETE", [string]$failureLabel = "? FAILED") {
+function Show-ResultScreen([bool]$success, [string]$message, [string]$successLabel = "✔ INSTALL COMPLETE", [string]$failureLabel = "✖ FAILED") {
     Clear-Host
     $boxWidth  = 44
     $boxHeight = 5
@@ -1327,10 +1368,10 @@ try {
                             if ($Config.ShowAfterBoostFPS -and $null -ne $installResult -and $installResult.PSObject.Properties.Name -contains "Status") {
                                 Show-BoostResultScreen $installResult
                             } else {
-                                Show-ResultScreen $true "Installation complete - gaming boost tweaks applied." "? INSTALL COMPLETE"
+                                Show-ResultScreen $true "Installation complete - gaming boost tweaks applied." "✔ INSTALL COMPLETE"
                             }
                         } catch {
-                            Show-ResultScreen $false ("Error: " + $_.Exception.Message) "? INSTALL COMPLETE"
+                            Show-ResultScreen $false ("Error: " + $_.Exception.Message) "✔ INSTALL COMPLETE"
                         }
                         Draw-StaticScreen
                     }
@@ -1339,9 +1380,9 @@ try {
                             Show-WorkingScreen "Uninstalling..."
                             try {
                                 Invoke-Uninstall -Report $Report | Out-Null
-                                Show-ResultScreen $true "Uninstall completed successfully." "? UNINSTALL COMPLETE"
+                                Show-ResultScreen $true "Uninstall completed successfully." "✔ UNINSTALL COMPLETE"
                             } catch {
-                                Show-ResultScreen $false ("Error: " + $_.Exception.Message) "? UNINSTALL COMPLETE"
+                                Show-ResultScreen $false ("Error: " + $_.Exception.Message) "✔ UNINSTALL COMPLETE"
                             }
                         }
                         Draw-StaticScreen
